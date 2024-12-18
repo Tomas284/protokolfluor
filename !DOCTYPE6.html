@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Protokol o zakázaném použití fluoru</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        #printArea {
+            padding: 20px;
+            border: 1px solid black;
+            width: 600px;
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Protokol o zakázaném použití fluoru</h1>
+
+    <div class="form-group">
+        <label for="datum">Datum konání soutěže:</label>
+        <input type="date" id="datum">
+    </div>
+
+    <div class="form-group">
+        <label for="misto">Místo konání závodu:</label>
+        <input type="text" id="misto" >
+    </div>
+
+    <div class="form-group">
+        <label for="jmeno">Jméno závodníka:</label>
+        <input type="text" id="jmeno" >
+    </div>
+
+    <div class="form-group">
+        <label for="typZavodu">Typ závodu:</label>
+        <select id="typZavodu" onchange="updateKategorieOptions()">
+            <option value="zakovsky">Žáci</option>
+            <option value="dorostenecky">Dorost/Dospělí</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="kategorie">Kategorie:</label>
+        <select id="kategorie">
+            <!-- Kategorie budou dynamicky generovány -->
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="klub">Klub:</label>
+        <input type="text" id="klub" >
+    </div>
+
+    <div class="form-group">
+        <label for="hodnotyFluoru">Hodnoty fluoru (Printscreen):</label>
+        <input type="file" id="hodnotyFluoru" accept="image/*">
+    </div>
+
+    <div class="form-group">
+        <label for="grafFluoru">Graf fluoru (Printscreen):</label>
+        <input type="file" id="grafFluoru" accept="image/*">
+    </div>
+
+    <div class="form-group">
+        <label for="inspektor">Inspektor fluoru:</label>
+        <select id="inspektor">
+            <option value="Tomáš Korbelář">Tomáš Korbelář</option>
+            <option value="Martin Kočandrle">Martin Kočandrle</option>
+        </select>
+    </div>
+
+    <button onclick="generateProtokol()">Zobrazit protokol</button>
+    <button onclick="generateImage()">Vytvořit JPEG</button>
+
+    <div id="printArea" style="display: none;">
+        <h2>Protokol o zakázaném použití fluoru</h2>
+        <p><strong>Datum konání soutěže:</strong> <span id="printDatum"></span></p>
+        <p><strong>Místo konání závodu:</strong> <span id="printMisto"></span></p>
+        <p><strong>Jméno závodníka:</strong> <span id="printJmeno"></span></p>
+        <p><strong>Typ závodu:</strong> <span id="printTypZavodu"></span></p>
+        <p><strong>Kategorie:</strong> <span id="printKategorie"></span></p>
+        <p><strong>Klub:</strong> <span id="printKlub"></span></p>
+        <p><strong>Hodnoty fluoru:</strong></p>
+        <img id="printHodnotyFluoru" style="max-width: 100%; height: auto;" alt="Hodnoty fluoru">
+        <p><strong>Graf fluoru:</strong></p>
+        <img id="printGrafFluoru" style="max-width: 100%; height: auto;" alt="Graf fluoru">
+        <p><strong>Inspektor fluoru:</strong> <span id="printInspektor"></span></p>
+    </div>
+
+    <script>
+        function updateKategorieOptions() {
+            const typZavodu = document.getElementById('typZavodu').value;
+            const kategorieSelect = document.getElementById('kategorie');
+            kategorieSelect.innerHTML = '';
+
+            if (typZavodu === 'zakovsky') {
+                const zakovskeKategorie = [
+                    'Žáci mladší', 'Žákyně mladší', 'Žáci starší', 'Žákyně starší', 'W 15', 'M 15'
+                ];
+                zakovskeKategorie.forEach(kategorie => {
+                    const option = document.createElement('option');
+                    option.value = kategorie;
+                    option.textContent = kategorie;
+                    kategorieSelect.appendChild(option);
+                });
+            } else if (typZavodu === 'dorostenecky') {
+                const dorosteneckeKategorie = [
+                    'W 16', 'M 16', 'W 18', 'M 18', 'W 20', 'M 20', 'W', 'M'
+                ];
+                dorosteneckeKategorie.forEach(kategorie => {
+                    const option = document.createElement('option');
+                    option.value = kategorie;
+                    option.textContent = kategorie;
+                    kategorieSelect.appendChild(option);
+                });
+            }
+        }
+
+        function generateProtokol() {
+            document.getElementById('printDatum').textContent = document.getElementById('datum').value;
+            document.getElementById('printMisto').textContent = document.getElementById('misto').value;
+            document.getElementById('printJmeno').textContent = document.getElementById('jmeno').value;
+            document.getElementById('printTypZavodu').textContent = document.getElementById('typZavodu').value === 'zakovsky' ? 'Žáci' : 'Dorost/Dospělí';
+            document.getElementById('printKategorie').textContent = document.getElementById('kategorie').value;
+            document.getElementById('printKlub').textContent = document.getElementById('klub').value;
+            document.getElementById('printInspektor').textContent = document.getElementById('inspektor').value;
+
+            const hodnotyFluoruFile = document.getElementById('hodnotyFluoru').files[0];
+            const grafFluoruFile = document.getElementById('grafFluoru').files[0];
+
+            if (hodnotyFluoruFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('printHodnotyFluoru').src = e.target.result;
+                };
+                reader.readAsDataURL(hodnotyFluoruFile);
+            }
+
+            if (grafFluoruFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('printGrafFluoru').src = e.target.result;
+                };
+                reader.readAsDataURL(grafFluoruFile);
+            }
+
+            document.getElementById('printArea').style.display = 'block';
+        }
+
+        async function generateImage() {
+            const element = document.getElementById('printArea');
+            const canvas = await html2canvas(element);
+            const link = document.createElement('a');
+            link.download = 'protokol.jpg';
+            link.href = canvas.toDataURL('image/jpeg');
+            link.click();
+        }
+
+        // Inicializace výchozích kategorií
+        updateKategorieOptions();
+    </script>
+</body>
+</html>
+
+
+
+
